@@ -217,7 +217,14 @@ export const lines: Line[] = [
       'shimbashi',
     ],
   },
-  // JR総武線は今回のルールでは無し（錦糸町から両国・浅草橋へは行けない）
+  {
+    id: 'sobu',
+    name: 'JR総武線',
+    color: '#FFD400',
+    stations: [
+      'kinshicho', 'akihabara',
+    ],
+  },
 ];
 
 // The "orange line" (JR山手線) line ID, used for the special mechanic
