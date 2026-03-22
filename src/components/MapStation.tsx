@@ -27,12 +27,13 @@ const MapStation: React.FC<MapStationProps> = ({
   const config = typeConfig[station.type];
   let { r } = config;
 
-  let fill = '#fff';
+  // 青丸（express）は青塗りつぶし、ピンク囲み（limited_express）は白抜き+ピンク枠
+  let fill = station.type === 'express' ? '#2196F3' : '#fff';
   let stroke = config.stroke;
   let strokeWidth = config.strokeWidth;
   let glowColor = '';
   let labelColor = '#333';
-  let labelWeight = station.type === 'limited_express' ? 700 : 400;
+  let labelWeight = station.type === 'limited_express' ? 700 : station.type === 'express' ? 600 : 400;
 
   if (isSelected) {
     fill = '#FF3D00';

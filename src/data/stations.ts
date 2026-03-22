@@ -54,7 +54,9 @@ export const stations: Station[] = [
   { id: 'kasuga', name: '春日', x: 578, y: 192, type: 'local' },
   { id: 'korakuen', name: '後楽園', x: 548, y: 232, type: 'local' },
   { id: 'nezu', name: '根津', x: 698, y: 152, type: 'local' },
-  { id: 'hongosanchome', name: '本郷三丁目', x: 628, y: 205, type: 'local' },
+  // 本郷三丁目は2つに分かれている（乗り換え不可）
+  { id: 'hongosanchome_m', name: '本郷三丁目(丸)', x: 618, y: 198, type: 'local' },
+  { id: 'hongosanchome_o', name: '本郷三丁目(大)', x: 638, y: 212, type: 'local' },
   { id: 'yushima', name: '湯島', x: 718, y: 240, type: 'local' },
   { id: 'ueno', name: '上野', x: 808, y: 145, type: 'express' },
   { id: 'ueno_okachimachi', name: '上野御徒町', x: 808, y: 185, type: 'local' },

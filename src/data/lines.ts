@@ -28,7 +28,7 @@ export const lines: Line[] = [
     color: '#F62E36',
     stations: [
       'ikebukuro', 'shin_otsuka', 'myogadani', 'korakuen',
-      'hongosanchome', 'ochanomizu', 'awajicho', 'otemachi',
+      'hongosanchome_m', 'ochanomizu', 'awajicho', 'otemachi',
       'tokyo', 'ginza', 'kasumigaseki', 'kokkai_gijidomae',
       'akasaka_mitsuke', 'yotsuya', 'yotsuya_sanchome',
       'shinjuku_gyoenmae', 'shinjuku_sanchome', 'shinjuku',
@@ -150,8 +150,8 @@ export const lines: Line[] = [
     stations: [
       // ループ部分
       'tochomae', 'shinjuku_nishiguchi', 'higashi_shinjuku',
-      'wakamatsu_kawada', 'ushigome_kagurazaka', 'iidabashi',
-      'kasuga', 'hongosanchome', 'ueno_okachimachi',
+      'wakamatsu_kawada', 'ushigome_yanagicho', 'ushigome_kagurazaka', 'iidabashi',
+      'kasuga', 'hongosanchome_o', 'ueno_okachimachi',
       'shin_okachimachi', 'kuramae', 'ryogoku',
       'morishita', 'kiyosumi_shirakawa', 'monzen_nakacho',
       'tsukishima', 'katsudoki', 'tsukijishijo',
@@ -217,14 +217,7 @@ export const lines: Line[] = [
       'shimbashi',
     ],
   },
-  {
-    id: 'sobu',
-    name: 'JR総武線',
-    color: '#FFD400',
-    stations: [
-      'akihabara', 'asakusabashi', 'ryogoku', 'kinshicho',
-    ],
-  },
+  // JR総武線は今回のルールでは無し（錦糸町から両国・浅草橋へは行けない）
 ];
 
 // The "orange line" (JR山手線) line ID, used for the special mechanic
