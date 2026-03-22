@@ -201,7 +201,7 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
     }
   };
 
-  const handleExport = () => {
+  const getExportJson = () => {
     const data = {
       players: players.map(p => ({ id: p.id, name: p.name, color: p.color, isThief: p.isThief })),
       turns: turns.map(t => ({
@@ -213,7 +213,11 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
         })),
       })),
     };
-    const json = JSON.stringify(data, null, 2);
+    return JSON.stringify(data, null, 2);
+  };
+
+  const handleExport = () => {
+    const json = getExportJson();
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -221,6 +225,14 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
     a.download = 'scotland-yard-replay.json';
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const [copySuccess, setCopySuccess] = useState(false);
+  const handleCopyExport = async () => {
+    const json = getExportJson();
+    await navigator.clipboard.writeText(json);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
   };
 
   const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -316,9 +328,14 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
           ファイル読込
         </button>
         {turns.length > 0 && (
-          <button className="ctrl-btn ctrl-btn-sm" onClick={handleExport}>
-            エクスポート
-          </button>
+          <>
+            <button className="ctrl-btn ctrl-btn-sm" onClick={handleCopyExport}>
+              {copySuccess ? 'コピー済!' : 'エクスポート'}
+            </button>
+            <button className="ctrl-btn ctrl-btn-sm" onClick={handleExport}>
+              ファイル書出
+            </button>
+          </>
         )}
       </div>
 

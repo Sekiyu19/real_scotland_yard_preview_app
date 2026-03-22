@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { stationMap } from '../data/stations';
 import { lines } from '../data/lines';
 import { TICKET_LABELS, TICKET_COLORS, STATION_TYPE_LABELS, STATION_TYPE_COLORS } from '../data/types';
@@ -22,6 +22,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
   onUndo,
   onReset,
 }) => {
+  const [copySuccess, setCopySuccess] = useState(false);
   const displayStation = hoveredStation || selectedStation;
   const station = displayStation ? stationMap.get(displayStation) : null;
 
@@ -126,28 +127,48 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
           リセット
         </button>
         {moveHistory.length > 0 && (
-          <button
-            className="ctrl-btn"
-            onClick={() => {
-              const data = moveHistory.map((m, i) => ({
-                turn: i + 1,
-                from: stationMap.get(m.from)?.name || m.from,
-                to: stationMap.get(m.to)?.name || m.to,
-                ticket: TICKET_LABELS[m.ticket as TicketType],
-                line: getLineName(m.line),
-              }));
-              const json = JSON.stringify(data, null, 2);
-              const blob = new Blob([json], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = 'scotland-yard-history.json';
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-          >
-            エクスポート
-          </button>
+          <>
+            <button
+              className="ctrl-btn"
+              onClick={async () => {
+                const data = moveHistory.map((m, i) => ({
+                  turn: i + 1,
+                  from: stationMap.get(m.from)?.name || m.from,
+                  to: stationMap.get(m.to)?.name || m.to,
+                  ticket: TICKET_LABELS[m.ticket as TicketType],
+                  line: getLineName(m.line),
+                }));
+                const json = JSON.stringify(data, null, 2);
+                await navigator.clipboard.writeText(json);
+                setCopySuccess(true);
+                setTimeout(() => setCopySuccess(false), 2000);
+              }}
+            >
+              {copySuccess ? 'コピー済!' : 'エクスポート'}
+            </button>
+            <button
+              className="ctrl-btn"
+              onClick={() => {
+                const data = moveHistory.map((m, i) => ({
+                  turn: i + 1,
+                  from: stationMap.get(m.from)?.name || m.from,
+                  to: stationMap.get(m.to)?.name || m.to,
+                  ticket: TICKET_LABELS[m.ticket as TicketType],
+                  line: getLineName(m.line),
+                }));
+                const json = JSON.stringify(data, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'scotland-yard-history.json';
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              ファイル書出
+            </button>
+          </>
         )}
       </div>
     </div>
