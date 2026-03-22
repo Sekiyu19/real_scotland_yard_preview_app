@@ -39,12 +39,10 @@ export function useGameState() {
               line: info.viaLine,
             },
           ]);
-          // Select the new station and update reachable
           setSelectedStation(stationId);
           setReachable(getReachableStations(stationId, selectedTicket));
         }
       } else {
-        // Select a new station
         setSelectedStation(stationId);
         setReachable(getReachableStations(stationId, selectedTicket));
       }

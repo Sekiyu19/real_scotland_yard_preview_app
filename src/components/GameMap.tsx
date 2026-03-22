@@ -16,6 +16,7 @@ interface GameMapProps {
 
 const MAP_WIDTH = 1200;
 const MAP_HEIGHT = 780;
+const PADDING = 40;
 
 const GameMap: React.FC<GameMapProps> = ({
   selectedStation,
@@ -23,21 +24,24 @@ const GameMap: React.FC<GameMapProps> = ({
   hoveredReachable,
   onSelectStation,
   onHoverStation,
-  onHoverReachable,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [viewBox, setViewBox] = useState({ x: 0, y: 0, w: MAP_WIDTH, h: MAP_HEIGHT });
+  const [viewBox, setViewBox] = useState({
+    x: -PADDING,
+    y: -PADDING,
+    w: MAP_WIDTH + PADDING * 2,
+    h: MAP_HEIGHT + PADDING * 2,
+  });
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
 
   const reachableSet = new Set(reachable.map(r => r.stationId));
 
-  // Zoom with wheel
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
       e.preventDefault();
-      const scaleFactor = e.deltaY > 0 ? 1.1 : 0.9;
+      const scaleFactor = e.deltaY > 0 ? 1.08 : 0.92;
       const svg = svgRef.current;
       if (!svg) return;
 
@@ -45,8 +49,8 @@ const GameMap: React.FC<GameMapProps> = ({
       const mouseX = ((e.clientX - rect.left) / rect.width) * viewBox.w + viewBox.x;
       const mouseY = ((e.clientY - rect.top) / rect.height) * viewBox.h + viewBox.y;
 
-      const newW = Math.min(Math.max(viewBox.w * scaleFactor, 300), MAP_WIDTH * 1.5);
-      const newH = Math.min(Math.max(viewBox.h * scaleFactor, 200), MAP_HEIGHT * 1.5);
+      const newW = Math.min(Math.max(viewBox.w * scaleFactor, 250), MAP_WIDTH * 2);
+      const newH = Math.min(Math.max(viewBox.h * scaleFactor, 160), MAP_HEIGHT * 2);
 
       setViewBox({
         x: mouseX - ((mouseX - viewBox.x) / viewBox.w) * newW,
@@ -58,17 +62,13 @@ const GameMap: React.FC<GameMapProps> = ({
     [viewBox]
   );
 
-  // Pan
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if (e.button === 1 || e.button === 0 && e.altKey) {
-        setIsPanning(true);
-        setPanStart({ x: e.clientX, y: e.clientY });
-        e.preventDefault();
-      }
-    },
-    []
-  );
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button === 1 || (e.button === 0 && e.altKey)) {
+      setIsPanning(true);
+      setPanStart({ x: e.clientX, y: e.clientY });
+      e.preventDefault();
+    }
+  }, []);
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
@@ -88,12 +88,15 @@ const GameMap: React.FC<GameMapProps> = ({
     setIsPanning(false);
   }, []);
 
-  // Reset zoom
   const resetZoom = useCallback(() => {
-    setViewBox({ x: 0, y: 0, w: MAP_WIDTH, h: MAP_HEIGHT });
+    setViewBox({
+      x: -PADDING,
+      y: -PADDING,
+      w: MAP_WIDTH + PADDING * 2,
+      h: MAP_HEIGHT + PADDING * 2,
+    });
   }, []);
 
-  // Prevent default wheel behavior on container
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -102,28 +105,32 @@ const GameMap: React.FC<GameMapProps> = ({
     return () => container.removeEventListener('wheel', handler);
   }, []);
 
+  // Line legend data
+  const lineLegend = lines.map(l => ({ name: l.name, color: l.color }));
+
   return (
-    <div ref={containerRef} style={styles.container}>
+    <div ref={containerRef} className="map-container">
       <svg
         ref={svgRef}
         viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`}
-        style={styles.svg}
+        className="map-svg"
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        {/* Background */}
-        <rect
-          x={viewBox.x - 500}
-          y={viewBox.y - 500}
-          width={viewBox.w + 1000}
-          height={viewBox.h + 1000}
-          fill="#F8F6F0"
-        />
+        <defs>
+          <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+            <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#E8E4DC" strokeWidth="0.5" />
+          </pattern>
+        </defs>
 
-        {/* Lines */}
+        {/* Background */}
+        <rect x={-200} y={-200} width={MAP_WIDTH + 400} height={MAP_HEIGHT + 400} fill="#F8F6F0" />
+        <rect x={-200} y={-200} width={MAP_WIDTH + 400} height={MAP_HEIGHT + 400} fill="url(#grid)" />
+
+        {/* Lines (render before stations) */}
         {lines.map(line => (
           <MapLine
             key={line.id}
@@ -144,12 +151,17 @@ const GameMap: React.FC<GameMapProps> = ({
             onHover={onHoverStation}
           />
         ))}
+
+        {/* Title */}
+        <text x={60} y={35} fontSize="18" fontWeight="bold" fill="#555" opacity={0.6}>
+          路線図
+        </text>
       </svg>
 
       {/* Zoom controls */}
-      <div style={styles.zoomControls}>
+      <div className="zoom-controls">
         <button
-          style={styles.zoomBtn}
+          className="zoom-btn"
           onClick={() =>
             setViewBox(prev => ({
               ...prev,
@@ -163,102 +175,53 @@ const GameMap: React.FC<GameMapProps> = ({
           +
         </button>
         <button
-          style={styles.zoomBtn}
+          className="zoom-btn"
           onClick={() =>
             setViewBox(prev => ({
               ...prev,
               x: prev.x - prev.w * 0.125,
               y: prev.y - prev.h * 0.125,
-              w: Math.min(prev.w * 1.25, MAP_WIDTH * 1.5),
-              h: Math.min(prev.h * 1.25, MAP_HEIGHT * 1.5),
+              w: Math.min(prev.w * 1.25, MAP_WIDTH * 2),
+              h: Math.min(prev.h * 1.25, MAP_HEIGHT * 2),
             }))
           }
         >
           -
         </button>
-        <button style={styles.zoomBtn} onClick={resetZoom}>
+        <button className="zoom-btn" onClick={resetZoom}>
           ⟲
         </button>
       </div>
 
-      {/* Legend */}
-      <div style={styles.legend}>
-        <div style={styles.legendItem}>
-          <span style={{ ...styles.legendDot, border: '2px solid #666', width: 8, height: 8 }} />
-          <span>各停</span>
+      {/* Line Legend */}
+      <div className="map-legend">
+        <div className="legend-title">路線</div>
+        <div className="legend-lines">
+          {lineLegend.map(l => (
+            <div key={l.name} className="legend-line-item">
+              <span className="legend-line-color" style={{ background: l.color }} />
+              <span className="legend-line-name">{l.name}</span>
+            </div>
+          ))}
         </div>
-        <div style={styles.legendItem}>
-          <span style={{ ...styles.legendDot, border: '2.5px solid #2196F3', width: 12, height: 12 }} />
-          <span>快速</span>
-        </div>
-        <div style={styles.legendItem}>
-          <span style={{ ...styles.legendDot, border: '2.5px solid #E91E63', width: 14, height: 14 }} />
-          <span>特急</span>
+        <div className="legend-title" style={{ marginTop: 8 }}>駅タイプ</div>
+        <div className="legend-stations">
+          <div className="legend-station-item">
+            <span className="legend-dot legend-dot-local" />
+            <span>各停</span>
+          </div>
+          <div className="legend-station-item">
+            <span className="legend-dot legend-dot-express" />
+            <span>快速</span>
+          </div>
+          <div className="legend-station-item">
+            <span className="legend-dot legend-dot-limited" />
+            <span>特急</span>
+          </div>
         </div>
       </div>
     </div>
   );
-};
-
-const styles: Record<string, React.CSSProperties> = {
-  container: {
-    position: 'relative',
-    width: '100%',
-    height: '100%',
-    borderRadius: 12,
-    overflow: 'hidden',
-    boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
-    background: '#F8F6F0',
-  },
-  svg: {
-    width: '100%',
-    height: '100%',
-    cursor: 'grab',
-  },
-  zoomControls: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
-  },
-  zoomBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    border: '1px solid #ddd',
-    background: '#fff',
-    fontSize: 18,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-  },
-  legend: {
-    position: 'absolute',
-    bottom: 12,
-    right: 12,
-    background: 'rgba(255,255,255,0.95)',
-    borderRadius: 8,
-    padding: '8px 12px',
-    display: 'flex',
-    gap: 12,
-    fontSize: 12,
-    boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-  },
-  legendItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 4,
-  },
-  legendDot: {
-    borderRadius: '50%',
-    background: '#fff',
-    display: 'inline-block',
-    boxSizing: 'border-box',
-  },
 };
 
 export default GameMap;

@@ -11,12 +11,6 @@ const MapLine: React.FC<MapLineProps> = ({ line, highlightPath }) => {
   const validStations = line.stations.filter(s => stationMap.has(s));
   if (validStations.length < 2) return null;
 
-  const points = validStations.map(sid => {
-    const s = stationMap.get(sid)!;
-    return `${s.x},${s.y}`;
-  });
-
-  // Check if path segments should be highlighted
   const isSegmentHighlighted = (s1: string, s2: string): boolean => {
     if (!highlightPath || highlightPath.length < 2) return false;
     for (let i = 0; i < highlightPath.length - 1; i++) {
@@ -30,29 +24,76 @@ const MapLine: React.FC<MapLineProps> = ({ line, highlightPath }) => {
     return false;
   };
 
+  // Determine line offset for parallel lines (avoid overlap)
+  const lineOffset = getLineOffset(line.id);
+
   return (
     <g>
-      {/* Base line */}
       {validStations.slice(0, -1).map((sid, i) => {
         const s1 = stationMap.get(sid)!;
         const s2 = stationMap.get(validStations[i + 1])!;
         const highlighted = isSegmentHighlighted(sid, validStations[i + 1]);
+
+        // Calculate perpendicular offset for parallel lines
+        const dx = s2.x - s1.x;
+        const dy = s2.y - s1.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const nx = len > 0 ? (-dy / len) * lineOffset : 0;
+        const ny = len > 0 ? (dx / len) * lineOffset : 0;
+
         return (
-          <line
-            key={`${line.id}-seg-${i}`}
-            x1={s1.x}
-            y1={s1.y}
-            x2={s2.x}
-            y2={s2.y}
-            stroke={highlighted ? '#FFD700' : line.color}
-            strokeWidth={highlighted ? 5 : 3}
-            strokeOpacity={highlighted ? 1 : 0.7}
-            strokeLinecap="round"
-          />
+          <React.Fragment key={`${line.id}-seg-${i}`}>
+            {/* Shadow for highlighted segments */}
+            {highlighted && (
+              <line
+                x1={s1.x + nx}
+                y1={s1.y + ny}
+                x2={s2.x + nx}
+                y2={s2.y + ny}
+                stroke="#FFD700"
+                strokeWidth={8}
+                strokeOpacity={0.4}
+                strokeLinecap="round"
+              />
+            )}
+            <line
+              x1={s1.x + nx}
+              y1={s1.y + ny}
+              x2={s2.x + nx}
+              y2={s2.y + ny}
+              stroke={highlighted ? '#FFD700' : line.color}
+              strokeWidth={highlighted ? 4 : 2.5}
+              strokeOpacity={highlighted ? 1 : 0.75}
+              strokeLinecap="round"
+            />
+          </React.Fragment>
         );
       })}
     </g>
   );
 };
+
+// Small perpendicular offset so parallel lines don't overlap
+function getLineOffset(lineId: string): number {
+  const offsets: Record<string, number> = {
+    ginza: -2,
+    marunouchi: 2,
+    hibiya: -1,
+    tozai: 1,
+    chiyoda: -2,
+    yurakucho: 2,
+    fukutoshin: -1,
+    hanzomon: 1,
+    namboku: -2,
+    mita: 2,
+    shinjuku_line: -1,
+    oedo: 1,
+    asakusa_line: -2,
+    yamanote: 3,
+    chuo: -3,
+    keihin_tohoku: 0,
+  };
+  return offsets[lineId] ?? 0;
+}
 
 export default React.memo(MapLine);

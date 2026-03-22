@@ -21,14 +21,19 @@ function App() {
   } = useGameState();
 
   return (
-    <div style={styles.app}>
-      <header style={styles.header}>
-        <h1 style={styles.headerTitle}>リアルスコットランドヤード</h1>
-        <span style={styles.headerSub}>プレビューアプリ ver.共有β6</span>
+    <div className="app">
+      <header className="header">
+        <div className="header-left">
+          <h1 className="header-title">リアルスコットランドヤード</h1>
+          <span className="header-version">ver.共有β6</span>
+        </div>
+        <div className="header-right">
+          <span className="header-hint">Alt+ドラッグでパン / スクロールでズーム</span>
+        </div>
       </header>
 
-      <div style={styles.main}>
-        <div style={styles.mapArea}>
+      <div className="main-layout">
+        <div className="map-area">
           <GameMap
             selectedStation={selectedStation}
             reachable={reachable}
@@ -39,7 +44,7 @@ function App() {
           />
         </div>
 
-        <div style={styles.sidebar}>
+        <div className="sidebar">
           <TicketPanel
             tickets={tickets}
             selectedTicket={selectedTicket}
@@ -53,85 +58,25 @@ function App() {
             onUndo={undoMove}
             onReset={resetGame}
           />
-        </div>
-      </div>
 
-      <div style={styles.rules}>
-        <details>
-          <summary style={styles.rulesSummary}>ルール</summary>
-          <div style={styles.rulesContent}>
-            <p>・表記駅全部 → 各停（全駅に停車）</p>
-            <p>・青丸駅 → 快速（快速停車駅のみ移動可能）</p>
-            <p>・ピンク囲み駅 → 特急/JR（特急停車駅のみ移動可能）</p>
-            <p>・怪盗の移動チケット数: 各停×11, 快速×7, 特急×4</p>
-            <p>・オレンジラインは4回まで特急扱いで利用可</p>
-            <p>・つながっていない駅間は移動不可</p>
+          {/* Rules */}
+          <div className="panel rules-panel">
+            <details>
+              <summary className="rules-summary">ルール</summary>
+              <div className="rules-content">
+                <p>・表記駅全部 → <strong>各停</strong>（全駅に停車）</p>
+                <p>・青丸駅 → <strong>快速</strong>（快速停車駅のみ移動可能）</p>
+                <p>・ピンク囲み駅 → <strong>特急/JR</strong>（特急停車駅のみ移動可能）</p>
+                <p>・怪盗の移動チケット: 各停×11, 快速×7, 特急×4</p>
+                <p>・<strong>オレンジライン</strong>（山手線）は4回まで特急扱いで利用可</p>
+                <p>・つながっていない駅間は移動不可</p>
+              </div>
+            </details>
           </div>
-        </details>
+        </div>
       </div>
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  app: {
-    fontFamily: '"Noto Sans JP", "Hiragino Sans", sans-serif',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100vh',
-    background: '#ECEAE4',
-    color: '#333',
-  },
-  header: {
-    display: 'flex',
-    alignItems: 'baseline',
-    gap: 12,
-    padding: '12px 20px',
-    background: '#2C3E50',
-    color: '#fff',
-  },
-  headerTitle: {
-    margin: 0,
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  headerSub: {
-    fontSize: 12,
-    opacity: 0.7,
-  },
-  main: {
-    display: 'flex',
-    flex: 1,
-    gap: 16,
-    padding: 16,
-    overflow: 'hidden',
-  },
-  mapArea: {
-    flex: 1,
-    minWidth: 0,
-  },
-  sidebar: {
-    width: 280,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 12,
-    flexShrink: 0,
-  },
-  rules: {
-    padding: '8px 20px 12px',
-  },
-  rulesSummary: {
-    cursor: 'pointer',
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: '#555',
-  },
-  rulesContent: {
-    fontSize: 12,
-    color: '#666',
-    lineHeight: 1.6,
-    marginTop: 4,
-  },
-};
 
 export default App;

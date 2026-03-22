@@ -10,16 +10,10 @@ interface MapStationProps {
   onHover: (id: string | null) => void;
 }
 
-const typeRadius: Record<StationType, number> = {
-  local: 4,
-  express: 6,
-  limited_express: 8,
-};
-
-const typeStroke: Record<StationType, string> = {
-  local: '#666',
-  express: '#2196F3',
-  limited_express: '#E91E63',
+const typeConfig: Record<StationType, { r: number; stroke: string; strokeWidth: number }> = {
+  local: { r: 3.5, stroke: '#888', strokeWidth: 1.2 },
+  express: { r: 5.5, stroke: '#2196F3', strokeWidth: 2 },
+  limited_express: { r: 7, stroke: '#E91E63', strokeWidth: 2.5 },
 };
 
 const MapStation: React.FC<MapStationProps> = ({
@@ -30,63 +24,97 @@ const MapStation: React.FC<MapStationProps> = ({
   onSelect,
   onHover,
 }) => {
-  const r = typeRadius[station.type];
-  const baseStroke = typeStroke[station.type];
+  const config = typeConfig[station.type];
+  let { r } = config;
 
   let fill = '#fff';
-  let stroke = baseStroke;
-  let strokeWidth = station.type === 'local' ? 1.5 : 2.5;
-  let currentR = r;
+  let stroke = config.stroke;
+  let strokeWidth = config.strokeWidth;
+  let glowColor = '';
+  let labelColor = '#333';
+  let labelWeight = station.type === 'limited_express' ? 700 : 400;
 
   if (isSelected) {
-    fill = '#FF4444';
-    stroke = '#CC0000';
-    strokeWidth = 3;
-    currentR = r + 3;
-  } else if (isReachable) {
-    fill = '#4CAF50';
-    stroke = '#2E7D32';
+    fill = '#FF3D00';
+    stroke = '#BF360C';
     strokeWidth = 2.5;
-    currentR = r + 2;
-  } else if (isHovered) {
-    fill = '#FFF3E0';
-    stroke = '#FF9800';
+    r = r + 3;
+    glowColor = 'rgba(255, 61, 0, 0.4)';
+    labelColor = '#BF360C';
+    labelWeight = 700;
+  } else if (isReachable) {
+    fill = '#66BB6A';
+    stroke = '#2E7D32';
     strokeWidth = 2;
-    currentR = r + 1;
+    r = r + 2;
+    glowColor = 'rgba(76, 175, 80, 0.35)';
+    labelColor = '#1B5E20';
+    labelWeight = 600;
+  } else if (isHovered) {
+    fill = '#FFF8E1';
+    stroke = '#FFA000';
+    strokeWidth = 2;
+    r = r + 1;
+    labelColor = '#E65100';
   }
+
+  const fontSize = station.type === 'limited_express' ? 9.5 : 7.5;
 
   return (
     <g
-      onClick={() => onSelect(station.id)}
+      onClick={(e) => { e.stopPropagation(); onSelect(station.id); }}
       onMouseEnter={() => onHover(station.id)}
       onMouseLeave={() => onHover(null)}
       style={{ cursor: 'pointer' }}
     >
-      {/* Hit area (larger invisible circle for easier clicking) */}
+      {/* Hit area */}
       <circle
         cx={station.x}
         cy={station.y}
-        r={Math.max(currentR + 8, 12)}
+        r={Math.max(r + 10, 14)}
         fill="transparent"
       />
-      {/* Station dot */}
+      {/* Glow effect */}
+      {glowColor && (
+        <circle
+          cx={station.x}
+          cy={station.y}
+          r={r + 5}
+          fill={glowColor}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+      {/* Station circle */}
       <circle
         cx={station.x}
         cy={station.y}
-        r={currentR}
+        r={r}
         fill={fill}
         stroke={stroke}
         strokeWidth={strokeWidth}
       />
-      {/* Station name label */}
+      {/* Inner dot for express/limited_express */}
+      {!isSelected && !isReachable && station.type !== 'local' && (
+        <circle
+          cx={station.x}
+          cy={station.y}
+          r={1.5}
+          fill={config.stroke}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+      {/* Label */}
       <text
         x={station.x}
-        y={station.y - currentR - 4}
+        y={station.y - r - 3.5}
         textAnchor="middle"
-        fontSize={station.type === 'limited_express' ? 10 : 8}
-        fontWeight={station.type === 'limited_express' ? 'bold' : 'normal'}
-        fill={isSelected ? '#CC0000' : isReachable ? '#2E7D32' : '#333'}
+        fontSize={fontSize}
+        fontWeight={labelWeight}
+        fill={labelColor}
         style={{ pointerEvents: 'none', userSelect: 'none' }}
+        stroke="#F8F6F0"
+        strokeWidth={2.5}
+        paintOrder="stroke"
       >
         {station.name}
       </text>

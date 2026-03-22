@@ -1,7 +1,7 @@
 import type { Line } from './types';
 
 export const lines: Line[] = [
-  // === 東京メトロ ===
+  // ===== 東京メトロ =====
   {
     id: 'ginza',
     name: '銀座線',
@@ -19,13 +19,12 @@ export const lines: Line[] = [
     name: '丸ノ内線',
     color: '#F62E36',
     stations: [
-      'ogikubo_dummy', // placeholder - not on game map, starts from ikebukuro side
       'ikebukuro', 'shin_otsuka', 'myogadani', 'korakuen',
       'hongosanchome', 'ochanomizu', 'awajicho', 'otemachi',
       'tokyo', 'ginza', 'kasumigaseki', 'kokkai_gijidomae',
       'akasaka_mitsuke', 'yotsuya', 'yotsuya_sanchome',
       'shinjuku_gyoenmae', 'shinjuku_sanchome', 'shinjuku',
-    ].filter(s => s !== 'ogikubo_dummy'),
+    ],
   },
   {
     id: 'hibiya',
@@ -68,24 +67,23 @@ export const lines: Line[] = [
     name: '有楽町線',
     color: '#C1A470',
     stations: [
-      'wakoshi_dummy', // not on game map
-      'ikebukuro', 'higashi_otsuka', 'gokokuji',
+      'ikebukuro', 'higashi_ikebukuro', 'gokokuji',
       'edogawabashi', 'iidabashi', 'ichigaya', 'kojimachi',
       'nagatacho', 'sakuradamon', 'yurakucho', 'ginza_itchome',
       'shintomicho', 'tsukishima', 'toyosu',
       'tatsumi', 'shin_kiba',
-    ].filter(s => s !== 'wakoshi_dummy'),
+    ],
   },
   {
     id: 'fukutoshin',
     name: '副都心線',
     color: '#9C5E31',
     stations: [
-      'ikebukuro', 'zoshigaya_dummy', // not on map
+      'ikebukuro', 'zoshigaya',
       'nishi_waseda', 'higashi_shinjuku',
       'shinjuku_sanchome', 'kita_sando', 'meiji_jingumae',
       'shibuya',
-    ].filter(s => s !== 'zoshigaya_dummy'),
+    ],
   },
   {
     id: 'hanzomon',
@@ -113,18 +111,17 @@ export const lines: Line[] = [
     ],
   },
 
-  // === 都営地下鉄 ===
+  // ===== 都営地下鉄 =====
   {
     id: 'mita',
     name: '都営三田線',
     color: '#0079C2',
     stations: [
-      'nishi_takashimadaira_dummy',
       'sugamo', 'sengoku', 'hakusan', 'kasuga',
       'suidobashi', 'jimbocho', 'otemachi', 'hibiya',
       'onarimon', 'shiba_koen', 'mita',
       'shirokane_takanawa', 'shirokanedai', 'meguro',
-    ].filter(s => s !== 'nishi_takashimadaira_dummy'),
+    ],
   },
   {
     id: 'shinjuku_line',
@@ -152,8 +149,9 @@ export const lines: Line[] = [
       'shiodome', 'daimon', 'akabane_bashi',
       'azabu_juban', 'roppongi', 'aoyama_itchome',
       'kokuritsu_kyogijo', 'yoyogi', 'shinjuku',
-      'tochomae', // loop
+      'tochomae',
     ],
+    isLoop: true,
   },
   {
     id: 'asakusa_line',
@@ -161,25 +159,26 @@ export const lines: Line[] = [
     color: '#E85298',
     stations: [
       'oshiage', 'honjo_azumabashi', 'asakusa',
-      'kuramae_dummy', 'asakusabashi',
+      'kuramae', 'asakusabashi',
       'higashi_nihombashi', 'ningyocho', 'nihombashi',
       'takaracho', 'shimbashi', 'daimon',
       'mita', 'sengakuji', 'takanawadai', 'gotanda',
-    ].filter(s => s !== 'kuramae_dummy'),
+    ],
   },
 
-  // === JR線 ===
+  // ===== JR線 =====
   {
     id: 'yamanote',
-    name: 'JR山手線',
-    color: '#9ACD32',
+    name: 'JR山手線（オレンジライン）',
+    color: '#FF8C00',
     stations: [
       'ikebukuro', 'sugamo', 'komagome', 'nishi_nippori',
       'nippori', 'ueno', 'akihabara', 'kanda', 'tokyo',
       'shimbashi', 'takanawa_gateway', 'meguro',
       'ebisu', 'shibuya', 'shinjuku', 'takadanobaba',
-      'ikebukuro', // loop
+      'ikebukuro',
     ],
+    isLoop: true,
   },
   {
     id: 'chuo',
@@ -201,3 +200,6 @@ export const lines: Line[] = [
     ],
   },
 ];
+
+// The "orange line" (JR山手線) line ID, used for the special mechanic
+export const ORANGE_LINE_ID = 'yamanote';
