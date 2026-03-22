@@ -410,7 +410,7 @@ const GameMap: React.FC<GameMapProps> = ({
           </div>
           <div className="legend-station-item">
             <span className="legend-dot legend-dot-limited" />
-            <span>JR</span>
+            <span>JR・オレンジ</span>
           </div>
         </div>
       </div>

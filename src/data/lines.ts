@@ -193,7 +193,7 @@ export const lines: Line[] = [
       'ikebukuro', 'sugamo', 'komagome', 'nishi_nippori',
       'ueno', 'akihabara', 'kanda', 'tokyo',
       'shimbashi', 'gotanda', 'meguro',
-      'ebisu', 'shibuya', 'shinjuku', 'takadanobaba',
+      'naka_meguro', 'ebisu', 'shibuya', 'shinjuku', 'takadanobaba',
       'ikebukuro',
     ],
     isLoop: true,

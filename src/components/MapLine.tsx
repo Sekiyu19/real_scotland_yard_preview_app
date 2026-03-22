@@ -7,9 +7,13 @@ interface MapLineProps {
   highlightPath?: string[] | null;
 }
 
+const JR_LINE_IDS = new Set(['yamanote', 'chuo', 'keihin_tohoku', 'sobu']);
+
 const MapLine: React.FC<MapLineProps> = ({ line, highlightPath }) => {
   const validStations = line.stations.filter(s => stationMap.has(s));
   if (validStations.length < 2) return null;
+
+  const isJR = JR_LINE_IDS.has(line.id);
 
   const isSegmentHighlighted = (s1: string, s2: string): boolean => {
     if (!highlightPath || highlightPath.length < 2) return false;
@@ -62,8 +66,8 @@ const MapLine: React.FC<MapLineProps> = ({ line, highlightPath }) => {
               x2={s2.x + nx}
               y2={s2.y + ny}
               stroke={highlighted ? '#FFD700' : line.color}
-              strokeWidth={highlighted ? 4 : 2.5}
-              strokeOpacity={highlighted ? 1 : 0.75}
+              strokeWidth={highlighted ? 4 : isJR ? 4.5 : 2.5}
+              strokeOpacity={highlighted ? 1 : isJR ? 0.85 : 0.75}
               strokeLinecap="round"
             />
           </React.Fragment>

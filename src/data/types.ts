@@ -33,7 +33,7 @@ export const INITIAL_TICKETS: TicketState = {
 export const TICKET_LABELS: Record<TicketType, string> = {
   local: '各停',
   express: '快速',
-  jr: 'JR',
+  jr: 'JR・オレンジ',
 };
 
 export const TICKET_COLORS: Record<TicketType, string> = {
@@ -46,7 +46,7 @@ export const TICKET_COLORS: Record<TicketType, string> = {
 export const STATION_TYPE_LABELS: Record<StationType, string> = {
   local: '各停',
   express: '快速',
-  limited_express: 'JR',
+  limited_express: 'JR・オレンジ',
 };
 
 export const STATION_TYPE_COLORS: Record<StationType, string> = {

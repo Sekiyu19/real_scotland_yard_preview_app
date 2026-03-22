@@ -115,7 +115,7 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
     const map: Record<string, TicketType> = {
       '各停': 'local', 'local': 'local',
       '快速': 'express', 'express': 'express',
-      'JR': 'jr', 'jr': 'jr',
+      'JR': 'jr', 'jr': 'jr', 'JR・オレンジ': 'jr',
       // Backwards compatibility
       '特急': 'jr', 'limited_express': 'jr',
       'オレンジ': 'jr', 'orange_line': 'jr',
