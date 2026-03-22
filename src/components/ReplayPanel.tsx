@@ -144,7 +144,11 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
           moves: (t.moves || []).map((m: any) => {
             const stationId = resolveStationId(m.station || m.stationId || '') || '';
             const ticket = resolveTicket(m.ticket || 'local') || 'local';
-            return { playerId: m.player || m.playerId || '', stationId, ticket };
+            // Resolve player name to ID
+            const playerRef = m.player || m.playerId || '';
+            const matchedPlayer = importedPlayers.find(p => p.name === playerRef || p.id === playerRef);
+            const playerId = matchedPlayer?.id || playerRef;
+            return { playerId, stationId, ticket };
           }).filter((m: TurnMove) => m.stationId && m.playerId),
         }));
         // Use onAddTurn for each turn (the hook handles it)
