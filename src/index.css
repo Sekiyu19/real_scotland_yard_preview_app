@@ -770,3 +770,43 @@ body {
   width: 100%;
   margin-top: 4px;
 }
+
+/* Import/Export */
+.import-export-row {
+  display: flex;
+  gap: 4px;
+}
+.import-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 6px;
+}
+.import-textarea {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: monospace;
+  resize: vertical;
+  line-height: 1.4;
+}
+.import-textarea:focus {
+  outline: none;
+  border-color: #1976D2;
+}
+.import-error {
+  font-size: 11px;
+  color: #C62828;
+  background: #FFF3F3;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.import-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}

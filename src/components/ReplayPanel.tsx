@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import type { Player, Turn, TurnMove, TicketType } from '../data/types';
 import { TICKET_LABELS, TICKET_COLORS, PLAYER_COLORS } from '../data/types';
 import { stationMap, stations } from '../data/stations';
@@ -98,6 +98,141 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
       .slice(0, 8);
   };
 
+  const [showImport, setShowImport] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importError, setImportError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Resolve station name to ID
+  const resolveStationId = (nameOrId: string): string | null => {
+    if (stationMap.has(nameOrId)) return nameOrId;
+    const found = stations.find(s => s.name === nameOrId);
+    return found?.id ?? null;
+  };
+
+  // Resolve ticket name to type
+  const resolveTicket = (t: string): TicketType | null => {
+    const map: Record<string, TicketType> = {
+      '各停': 'local', 'local': 'local',
+      '快速': 'express', 'express': 'express',
+      '特急': 'limited_express', 'limited_express': 'limited_express',
+      'オレンジ': 'orange_line', 'orange_line': 'orange_line',
+    };
+    return map[t] ?? null;
+  };
+
+  const handleImport = () => {
+    try {
+      setImportError('');
+      const data = JSON.parse(importText);
+
+      // Support multiple formats
+      if (data.players && data.turns) {
+        // Full format: { players: [...], turns: [...] }
+        const importedPlayers: Player[] = data.players.map((p: any, i: number) => ({
+          id: p.id || `p${i}`,
+          name: p.name || `Player${i}`,
+          color: p.color || PLAYER_COLORS[i % PLAYER_COLORS.length],
+          isThief: p.isThief ?? (i === 0),
+        }));
+        onSetPlayers(importedPlayers);
+
+        const importedTurns: Turn[] = data.turns.map((t: any, ti: number) => ({
+          turnNumber: t.turnNumber ?? ti + 1,
+          moves: (t.moves || []).map((m: any) => {
+            const stationId = resolveStationId(m.station || m.stationId || '') || '';
+            const ticket = resolveTicket(m.ticket || 'local') || 'local';
+            return { playerId: m.player || m.playerId || '', stationId, ticket };
+          }).filter((m: TurnMove) => m.stationId && m.playerId),
+        }));
+        // Use onAddTurn for each turn (the hook handles it)
+        onReset();
+        setTimeout(() => {
+          onSetPlayers(importedPlayers);
+          for (const t of importedTurns) {
+            onAddTurn(t.moves);
+          }
+        }, 0);
+      } else if (Array.isArray(data)) {
+        // Simple array format: [{ player, turn, station, ticket }, ...]
+        const playerNames = new Set<string>();
+        for (const item of data) {
+          playerNames.add(item.player || item.playerId || '');
+        }
+        const importedPlayers: Player[] = Array.from(playerNames).map((name, i) => ({
+          id: name,
+          name,
+          color: PLAYER_COLORS[i % PLAYER_COLORS.length],
+          isThief: i === 0,
+        }));
+
+        // Group by turn
+        const turnGroups = new Map<number, TurnMove[]>();
+        for (const item of data) {
+          const turnNum = item.turn ?? 1;
+          const stationId = resolveStationId(item.station || item.stationId || '') || '';
+          const ticket = resolveTicket(item.ticket || 'local') || 'local';
+          const playerId = item.player || item.playerId || '';
+          if (stationId && playerId) {
+            if (!turnGroups.has(turnNum)) turnGroups.set(turnNum, []);
+            turnGroups.get(turnNum)!.push({ playerId, stationId, ticket });
+          }
+        }
+
+        onReset();
+        setTimeout(() => {
+          onSetPlayers(importedPlayers);
+          const sortedTurns = Array.from(turnGroups.entries()).sort(([a], [b]) => a - b);
+          for (const [, moves] of sortedTurns) {
+            onAddTurn(moves);
+          }
+        }, 0);
+      } else {
+        setImportError('対応していないJSON形式です');
+        return;
+      }
+
+      setShowImport(false);
+      setImportText('');
+    } catch {
+      setImportError('JSONの解析に失敗しました');
+    }
+  };
+
+  const handleExport = () => {
+    const data = {
+      players: players.map(p => ({ id: p.id, name: p.name, color: p.color, isThief: p.isThief })),
+      turns: turns.map(t => ({
+        turnNumber: t.turnNumber,
+        moves: t.moves.map(m => ({
+          player: players.find(p => p.id === m.playerId)?.name || m.playerId,
+          station: stationMap.get(m.stationId)?.name || m.stationId,
+          ticket: TICKET_LABELS[m.ticket],
+        })),
+      })),
+    };
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'scotland-yard-replay.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImportText(reader.result as string);
+      setShowImport(true);
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   const playerCount = players.length;
 
   return (
@@ -154,6 +289,55 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
               + 刑事を追加
             </button>
           )}
+        </div>
+      )}
+
+      {/* Import/Export */}
+      <div className="import-export-row">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          style={{ display: 'none' }}
+          onChange={handleFileImport}
+        />
+        <button
+          className="ctrl-btn ctrl-btn-sm"
+          onClick={() => setShowImport(!showImport)}
+        >
+          インポート
+        </button>
+        <button
+          className="ctrl-btn ctrl-btn-sm"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          ファイル読込
+        </button>
+        {turns.length > 0 && (
+          <button className="ctrl-btn ctrl-btn-sm" onClick={handleExport}>
+            エクスポート
+          </button>
+        )}
+      </div>
+
+      {showImport && (
+        <div className="import-section">
+          <textarea
+            className="import-textarea"
+            placeholder={'JSONデータを貼り付け...\n\n形式1: [{"player":"怪盗","turn":1,"station":"新宿","ticket":"各停"}, ...]\n\n形式2: {"players":[...],"turns":[...]}'}
+            value={importText}
+            onChange={(e) => { setImportText(e.target.value); setImportError(''); }}
+            rows={6}
+          />
+          {importError && <div className="import-error">{importError}</div>}
+          <div className="import-actions">
+            <button className="ctrl-btn ctrl-btn-sm" onClick={() => { setShowImport(false); setImportText(''); }}>
+              キャンセル
+            </button>
+            <button className="ctrl-btn ctrl-btn-sm ctrl-btn-primary" onClick={handleImport}>
+              読み込み
+            </button>
+          </div>
         </div>
       )}
 
