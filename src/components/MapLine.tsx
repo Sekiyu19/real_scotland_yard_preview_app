@@ -93,9 +93,10 @@ function getLineOffset(lineId: string): number {
     shinjuku_line: -1,
     oedo: 1,
     asakusa_line: -2,
-    yamanote: 3,
-    chuo: -3,
-    keihin_tohoku: 0,
+    yamanote: 8,
+    chuo: -8,
+    keihin_tohoku: 12,
+    sobu: -12,
   };
   return offsets[lineId] ?? 0;
 }

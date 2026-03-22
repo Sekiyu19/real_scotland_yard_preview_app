@@ -7,6 +7,8 @@ export interface Connection {
   line: string;
 }
 
+const JR_LINE_IDS = new Set(['yamanote', 'chuo', 'keihin_tohoku', 'sobu']);
+
 // adjacency: stationId -> list of { to: stationId, line: lineId }
 const adjacency = new Map<string, Connection[]>();
 
@@ -31,9 +33,9 @@ for (const line of lines) {
 /**
  * Get reachable stations from a given station using a specific ticket type.
  *
- * - Local (各停): move 1 stop on any line to any adjacent station
- * - Express (快速): travel along a line, stop at next express/limited_express station
- * - JR: travel along any line, stop at next limited_express station
+ * - Local (各停): move 1 stop on non-JR lines to any adjacent station
+ * - Express (快速): travel along non-JR lines, stop at next express/limited_express station
+ * - JR・オレンジ: travel along JR lines only, stop at next limited_express station
  */
 export function getReachableStations(
   fromId: string,
@@ -42,9 +44,13 @@ export function getReachableStations(
   const results: { stationId: string; viaLine: string; path: string[] }[] = [];
   const seen = new Set<string>();
 
+  const isJRTicket = ticketType === 'jr';
+
   if (ticketType === 'local') {
     const connections = adjacency.get(fromId) || [];
     for (const conn of connections) {
+      // Local cannot use JR lines
+      if (JR_LINE_IDS.has(conn.line)) continue;
       if (!seen.has(conn.to)) {
         seen.add(conn.to);
         results.push({ stationId: conn.to, viaLine: conn.line, path: [fromId, conn.to] });
@@ -67,7 +73,13 @@ export function getReachableStations(
   const stationLines = new Set<string>();
   const connections = adjacency.get(fromId) || [];
   for (const conn of connections) {
-    stationLines.add(conn.line);
+    const isJRLine = JR_LINE_IDS.has(conn.line);
+    // JR ticket: only JR lines. Express ticket: only non-JR lines.
+    if (isJRTicket && isJRLine) {
+      stationLines.add(conn.line);
+    } else if (!isJRTicket && !isJRLine) {
+      stationLines.add(conn.line);
+    }
   }
 
   for (const lineId of stationLines) {
