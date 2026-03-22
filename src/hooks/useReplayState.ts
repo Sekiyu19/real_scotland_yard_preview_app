@@ -37,9 +37,9 @@ export function useReplayState() {
   );
 
   const addTurn = useCallback(
-    (moves: TurnMove[]) => {
+    (moves: TurnMove[], turnNumber?: number) => {
       const newTurn: Turn = {
-        turnNumber: turns.length + 1,
+        turnNumber: turnNumber ?? turns.length + 1,
         moves,
       };
       setTurns(prev => [...prev, newTurn]);
@@ -61,10 +61,7 @@ export function useReplayState() {
 
   const deleteTurn = useCallback(
     (turnIndex: number) => {
-      setTurns(prev => {
-        const updated = prev.filter((_, i) => i !== turnIndex);
-        return updated.map((t, i) => ({ ...t, turnNumber: i + 1 }));
-      });
+      setTurns(prev => prev.filter((_, i) => i !== turnIndex));
       setCurrentTurn(prev => Math.min(prev, turns.length - 1));
     },
     [turns.length]

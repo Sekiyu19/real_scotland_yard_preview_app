@@ -8,7 +8,7 @@ interface ReplayPanelProps {
   turns: Turn[];
   currentTurn: number;
   onSetCurrentTurn: (turn: number) => void;
-  onAddTurn: (moves: TurnMove[]) => void;
+  onAddTurn: (moves: TurnMove[], turnNumber?: number) => void;
   onUpdateTurn: (index: number, moves: TurnMove[]) => void;
   onDeleteTurn: (index: number) => void;
   onAddPlayer: (player: Player) => void;
@@ -39,10 +39,31 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
   const [showPlayerSetup, setShowPlayerSetup] = useState(false);
   const [stationSearch, setStationSearch] = useState<Record<string, string>>({});
 
-  // Initialize new moves for all players
-  const initNewMoves = () => {
+  // Determine if a turnNumber is thief's turn (odd) or detective's turn (even)
+  const isThiefTurn = (turnNumber: number) => turnNumber % 2 === 1;
+
+  // Next turn number
+  const nextTurnNumber = turns.length > 0 ? turns[turns.length - 1].turnNumber + 1 : 1;
+
+  // Get players who should move for a given turn number
+  const getPlayersForTurn = (turnNumber: number) => {
+    if (isThiefTurn(turnNumber)) {
+      return players.filter(p => p.isThief);
+    }
+    return players.filter(p => !p.isThief);
+  };
+
+  // Get the turn number for the editing form
+  const getEditingTurnNumber = () => {
+    if (editingTurn === -1) return nextTurnNumber;
+    if (editingTurn !== null) return turns[editingTurn].turnNumber;
+    return 1;
+  };
+
+  // Initialize new moves for relevant players only
+  const initNewMoves = (turnNumber: number) => {
     const moves: Record<string, { station: string; ticket: TicketType }> = {};
-    for (const p of players) {
+    for (const p of getPlayersForTurn(turnNumber)) {
       moves[p.id] = { station: '', ticket: 'local' };
     }
     setNewMoves(moves);
@@ -50,14 +71,15 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
   };
 
   const startNewTurn = () => {
-    initNewMoves();
+    initNewMoves(nextTurnNumber);
     setEditingTurn(-1); // -1 = new turn
   };
 
   const startEditTurn = (turnIndex: number) => {
     const turn = turns[turnIndex];
     const moves: Record<string, { station: string; ticket: TicketType }> = {};
-    for (const p of players) {
+    const relevantPlayers = getPlayersForTurn(turn.turnNumber);
+    for (const p of relevantPlayers) {
       const move = turn.moves.find(m => m.playerId === p.id);
       moves[p.id] = move
         ? { station: move.stationId, ticket: move.ticket }
@@ -82,7 +104,7 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
     if (moves.length === 0) return;
 
     if (editingTurn === -1) {
-      onAddTurn(moves);
+      onAddTurn(moves, nextTurnNumber);
     } else if (editingTurn !== null) {
       onUpdateTurn(editingTurn, moves);
     }
@@ -151,12 +173,12 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
             return { playerId, stationId, ticket };
           }).filter((m: TurnMove) => m.stationId && m.playerId),
         }));
-        // Use onAddTurn for each turn (the hook handles it)
+        // Use onAddTurn for each turn, preserving turnNumber
         onReset();
         setTimeout(() => {
           onSetPlayers(importedPlayers);
           for (const t of importedTurns) {
-            onAddTurn(t.moves);
+            onAddTurn(t.moves, t.turnNumber);
           }
         }, 0);
       } else if (Array.isArray(data)) {
@@ -189,8 +211,8 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
         setTimeout(() => {
           onSetPlayers(importedPlayers);
           const sortedTurns = Array.from(turnGroups.entries()).sort(([a], [b]) => a - b);
-          for (const [, moves] of sortedTurns) {
-            onAddTurn(moves);
+          for (const [turnNum, moves] of sortedTurns) {
+            onAddTurn(moves, turnNum);
           }
         }, 0);
       } else {
@@ -406,7 +428,7 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
             onClick={() => onSetCurrentTurn(i + 1)}
           >
             <div className="turn-item-header">
-              <span className="turn-number">T{turn.turnNumber}</span>
+              <span className="turn-number">T{turn.turnNumber} {isThiefTurn(turn.turnNumber) ? '怪盗' : '刑事'}</span>
               <div className="turn-item-actions">
                 <button
                   className="turn-edit-btn"
@@ -453,9 +475,11 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
       {editingTurn !== null ? (
         <div className="turn-form">
           <div className="turn-form-title">
-            {editingTurn === -1 ? `ターン ${turns.length + 1}` : `ターン ${editingTurn + 1} を編集`}
+            {editingTurn === -1
+              ? `T${nextTurnNumber} ${isThiefTurn(nextTurnNumber) ? '怪盗' : '刑事'}`
+              : `T${turns[editingTurn].turnNumber} ${isThiefTurn(turns[editingTurn].turnNumber) ? '怪盗' : '刑事'} を編集`}
           </div>
-          {players.map(p => (
+          {getPlayersForTurn(getEditingTurnNumber()).map(p => (
             <div key={p.id} className="turn-form-player">
               <div className="turn-form-player-header">
                 <span className="player-color-dot" style={{ background: p.color }} />
@@ -536,7 +560,7 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
         </div>
       ) : (
         <button className="ctrl-btn ctrl-btn-primary add-turn-btn" onClick={startNewTurn}>
-          + ターンを追加
+          + T{nextTurnNumber} {isThiefTurn(nextTurnNumber) ? '怪盗' : '刑事'}ターンを追加
         </button>
       )}
     </div>
