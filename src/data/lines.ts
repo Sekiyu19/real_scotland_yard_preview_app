@@ -202,7 +202,7 @@ export const lines: Line[] = [
     name: 'JR中央線',
     color: '#FF4500',
     stations: [
-      'yotsuya', 'shinjuku',
+      'akihabara', 'yotsuya', 'shinjuku',
     ],
   },
   {
