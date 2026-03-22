@@ -184,16 +184,15 @@ export const lines: Line[] = [
     ],
   },
 
-  // ===== JR線 =====
+  // ===== JR線（JR・オレンジ停車駅のみ直接接続） =====
   {
     id: 'yamanote',
     name: 'JR山手線（オレンジライン）',
     color: '#FF8C00',
     stations: [
-      'ikebukuro', 'sugamo', 'komagome', 'nishi_nippori',
-      'ueno', 'akihabara', 'kanda', 'tokyo',
-      'shimbashi', 'gotanda', 'meguro',
-      'naka_meguro', 'ebisu', 'shibuya', 'shinjuku', 'takadanobaba',
+      'ikebukuro', 'komagome', 'nishi_nippori',
+      'akihabara', 'shimbashi', 'meguro',
+      'shibuya', 'shinjuku',
       'ikebukuro',
     ],
     isLoop: true,
@@ -203,8 +202,7 @@ export const lines: Line[] = [
     name: 'JR中央線',
     color: '#FF4500',
     stations: [
-      'tokyo', 'kanda', 'ochanomizu', 'yotsuya',
-      'shinjuku', 'nakano',
+      'yotsuya', 'shinjuku',
     ],
   },
   {
@@ -212,20 +210,7 @@ export const lines: Line[] = [
     name: 'JR京浜東北線',
     color: '#00B2E5',
     stations: [
-      'oji', 'nishi_nippori',
-      'ueno', 'akihabara', 'kanda', 'tokyo',
-      'shimbashi',
-    ],
-  },
-  {
-    id: 'sobu',
-    name: 'JR総武線',
-    color: '#FFD400',
-    stations: [
-      'kinshicho', 'akihabara',
+      'nishi_nippori', 'akihabara', 'shimbashi',
     ],
   },
 ];
-
-// The "orange line" (JR山手線) line ID, used for the special mechanic
-export const ORANGE_LINE_ID = 'yamanote';
