@@ -1,5 +1,13 @@
 import type { Line } from './types';
 
+// ===================================================================
+// 画像の路線図を忠実に再現した路線データ
+// 凡例（右下）:
+//   銀座線, 丸の内線, 日比谷線, 東西線, 千代田線, 有楽町線,
+//   副都心線, 半蔵門線, 南北線, 都営三田線, 都営新宿線,
+//   都営大江戸線, 都営浅草線, (JR) 京浜東北, 山手, 総武線
+// ===================================================================
+
 export const lines: Line[] = [
   // ===== 東京メトロ =====
   {
@@ -10,7 +18,7 @@ export const lines: Line[] = [
       'shibuya', 'omote_sando', 'gaienmae', 'aoyama_itchome',
       'akasaka_mitsuke', 'tameike_sanno', 'toranomon', 'shimbashi',
       'ginza', 'kyobashi', 'nihombashi', 'mitsukoshimae', 'kanda',
-      'akihabara', 'suehirocho', 'ueno_hirokoji', 'ueno',
+      'suehirocho', 'ueno_hirokoji', 'ueno',
       'inaricho', 'tawaramachi', 'asakusa',
     ],
   },
@@ -24,6 +32,7 @@ export const lines: Line[] = [
       'tokyo', 'ginza', 'kasumigaseki', 'kokkai_gijidomae',
       'akasaka_mitsuke', 'yotsuya', 'yotsuya_sanchome',
       'shinjuku_gyoenmae', 'shinjuku_sanchome', 'shinjuku',
+      'nishi_shinjuku', 'nakano_sakaue',
     ],
   },
   {
@@ -31,8 +40,8 @@ export const lines: Line[] = [
     name: '日比谷線',
     color: '#B5B5AC',
     stations: [
-      'kita_senju', 'minami_senju', 'minowa', 'ueno',
-      'naka_okachimachi', 'akihabara', 'ogawamachi',
+      'kita_senju', 'minami_senju', 'minowa', 'iriya', 'ueno',
+      'naka_okachimachi', 'akihabara', 'kodenmacho',
       'ningyocho', 'kayabacho', 'hacchobori', 'tsukiji',
       'higashi_ginza', 'ginza', 'hibiya', 'kasumigaseki',
       'kamiyacho', 'roppongi', 'hiroo', 'ebisu',
@@ -47,7 +56,6 @@ export const lines: Line[] = [
       'nakano', 'ochiai', 'takadanobaba', 'waseda',
       'kagurazaka', 'iidabashi', 'kudanshita', 'takebashi',
       'otemachi', 'nihombashi', 'kayabacho', 'monzen_nakacho',
-      'kiyosumi_shirakawa', 'sumiyoshi', 'kinshicho',
     ],
   },
   {
@@ -55,11 +63,12 @@ export const lines: Line[] = [
     name: '千代田線',
     color: '#00BB85',
     stations: [
-      'kita_ayase', 'ayase', 'kita_senju', 'nishi_nippori',
-      'sendagi', 'nezu', 'yushima', 'shin_ochanomizu',
-      'otemachi', 'nijubashimae', 'hibiya', 'kasumigaseki',
-      'kokkai_gijidomae', 'akasaka', 'nogizaka', 'omote_sando',
-      'meiji_jingumae', 'yoyogi_koen', 'yoyogi_uehara',
+      'kita_ayase', 'ayase', 'kita_senju', 'machiya',
+      'nishi_nippori', 'sendagi', 'nezu', 'yushima',
+      'shin_ochanomizu', 'otemachi', 'nijubashimae', 'hibiya',
+      'kasumigaseki', 'kokkai_gijidomae', 'akasaka',
+      'nogizaka', 'omote_sando', 'meiji_jingumae',
+      'yoyogi_koen', 'yoyogi_uehara',
     ],
   },
   {
@@ -139,12 +148,12 @@ export const lines: Line[] = [
     name: '都営大江戸線',
     color: '#CE2869',
     stations: [
+      // ループ部分
       'tochomae', 'shinjuku_nishiguchi', 'higashi_shinjuku',
       'wakamatsu_kawada', 'ushigome_kagurazaka', 'iidabashi',
       'kasuga', 'hongosanchome', 'ueno_okachimachi',
-      'shin_ochanomizu', 'iwamotocho',
-      'bakuroyokoyama', 'higashi_nihombashi', 'morishita',
-      'kiyosumi_shirakawa', 'monzen_nakacho',
+      'shin_okachimachi', 'kuramae', 'ryogoku',
+      'morishita', 'kiyosumi_shirakawa', 'monzen_nakacho',
       'tsukishima', 'katsudoki', 'tsukijishijo',
       'shiodome', 'daimon', 'akabane_bashi',
       'azabu_juban', 'roppongi', 'aoyama_itchome',
@@ -152,6 +161,15 @@ export const lines: Line[] = [
       'tochomae',
     ],
     isLoop: true,
+  },
+  {
+    // 大江戸線の尻尾部分（都庁前〜中野坂上）
+    id: 'oedo_tail',
+    name: '都営大江戸線（支線）',
+    color: '#CE2869',
+    stations: [
+      'tochomae', 'nishi_shinjuku_5', 'nakano_sakaue',
+    ],
   },
   {
     id: 'asakusa_line',
@@ -173,8 +191,8 @@ export const lines: Line[] = [
     color: '#FF8C00',
     stations: [
       'ikebukuro', 'sugamo', 'komagome', 'nishi_nippori',
-      'nippori', 'ueno', 'akihabara', 'kanda', 'tokyo',
-      'shimbashi', 'takanawa_gateway', 'meguro',
+      'ueno', 'akihabara', 'kanda', 'tokyo',
+      'shimbashi', 'gotanda', 'meguro',
       'ebisu', 'shibuya', 'shinjuku', 'takadanobaba',
       'ikebukuro',
     ],
@@ -194,9 +212,17 @@ export const lines: Line[] = [
     name: 'JR京浜東北線',
     color: '#00B2E5',
     stations: [
-      'akabane_iwabuchi', 'oji', 'nishi_nippori', 'nippori',
+      'oji', 'nishi_nippori',
       'ueno', 'akihabara', 'kanda', 'tokyo',
-      'shimbashi', 'takanawa_gateway',
+      'shimbashi',
+    ],
+  },
+  {
+    id: 'sobu',
+    name: 'JR総武線',
+    color: '#FFD400',
+    stations: [
+      'akihabara', 'asakusabashi', 'ryogoku', 'kinshicho',
     ],
   },
 ];

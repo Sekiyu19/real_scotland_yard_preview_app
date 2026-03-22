@@ -110,11 +110,12 @@ function App() {
             <details>
               <summary className="rules-summary">ルール</summary>
               <div className="rules-content">
-                <p>・表記駅全部 → <strong>各停</strong>（全駅に停車）</p>
-                <p>・青丸駅 → <strong>快速</strong>（快速停車駅のみ移動可能）</p>
-                <p>・ピンク囲み駅 → <strong>特急/JR</strong>（特急停車駅のみ移動可能）</p>
-                <p>・怪盗の移動チケット: 各停×11, 快速×7, 特急×4</p>
-                <p>・<strong>オレンジライン</strong>（山手線）は4回まで特急扱いで利用可</p>
+                <p>・表記駅全部 → <strong>各停</strong></p>
+                <p>・青丸駅 → <strong>快速</strong></p>
+                <p>・ピンク囲み駅 → <strong>特急(JR)</strong></p>
+                <p>・※一部抜いた駅があるので注意</p>
+                <p>・<strong>オレンジライン</strong>は4回まで特急扱いで利用可</p>
+                <p>・警察の移動チケット数は <strong>各停×10, 快速×8, 特急×4</strong></p>
                 <p>・つながっていない駅間は移動不可</p>
               </div>
             </details>

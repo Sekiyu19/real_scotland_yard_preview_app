@@ -24,9 +24,10 @@ export interface TicketState {
   orange_line: number;
 }
 
+// 画像ルール: 警察の移動チケット数は 各停×10, 快速×8, 特急×4
 export const INITIAL_TICKETS: TicketState = {
-  local: 11,
-  express: 7,
+  local: 10,
+  express: 8,
   limited_express: 4,
   orange_line: 4,
 };
