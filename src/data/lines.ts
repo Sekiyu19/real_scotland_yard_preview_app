@@ -192,7 +192,7 @@ export const lines: Line[] = [
     stations: [
       'ikebukuro', 'komagome', 'nishi_nippori',
       'akihabara', 'shimbashi', 'meguro',
-      'naka_meguro', 'shibuya', 'shinjuku',
+      'shibuya', 'shinjuku',
       'ikebukuro',
     ],
     isLoop: true,
@@ -219,6 +219,14 @@ export const lines: Line[] = [
     color: '#00B2E5',
     stations: [
       'oji', 'nishi_nippori',
+    ],
+  },
+  {
+    id: 'tokyu_toyoko',
+    name: 'JR中目黒〜渋谷',
+    color: '#FF8C00',
+    stations: [
+      'naka_meguro', 'shibuya',
     ],
   },
 ];

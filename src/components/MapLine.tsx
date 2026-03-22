@@ -7,7 +7,7 @@ interface MapLineProps {
   highlightPath?: string[] | null;
 }
 
-const JR_LINE_IDS = new Set(['yamanote', 'chuo', 'sobu', 'keihin_tohoku']);
+const JR_LINE_IDS = new Set(['yamanote', 'chuo', 'sobu', 'keihin_tohoku', 'tokyu_toyoko']);
 
 const MapLine: React.FC<MapLineProps> = ({ line, highlightPath }) => {
   const validStations = line.stations.filter(s => stationMap.has(s));
