@@ -2,6 +2,7 @@ import React from 'react';
 import { stationMap } from '../data/stations';
 import { lines } from '../data/lines';
 import { TICKET_LABELS, TICKET_COLORS, STATION_TYPE_LABELS, STATION_TYPE_COLORS } from '../data/types';
+import type { TicketType } from '../data/types';
 import type { ReachableInfo } from '../hooks/useGameState';
 
 interface InfoPanelProps {
@@ -124,6 +125,30 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
         <button onClick={onReset} className="ctrl-btn ctrl-btn-danger">
           リセット
         </button>
+        {moveHistory.length > 0 && (
+          <button
+            className="ctrl-btn"
+            onClick={() => {
+              const data = moveHistory.map((m, i) => ({
+                turn: i + 1,
+                from: stationMap.get(m.from)?.name || m.from,
+                to: stationMap.get(m.to)?.name || m.to,
+                ticket: TICKET_LABELS[m.ticket as TicketType],
+                line: getLineName(m.line),
+              }));
+              const json = JSON.stringify(data, null, 2);
+              const blob = new Blob([json], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'scotland-yard-history.json';
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
+            エクスポート
+          </button>
+        )}
       </div>
     </div>
   );
