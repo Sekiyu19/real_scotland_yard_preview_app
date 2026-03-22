@@ -205,12 +205,4 @@ export const lines: Line[] = [
       'akihabara', 'yotsuya', 'shinjuku',
     ],
   },
-  {
-    id: 'keihin_tohoku',
-    name: 'JR京浜東北線',
-    color: '#00B2E5',
-    stations: [
-      'nishi_nippori', 'akihabara', 'shimbashi',
-    ],
-  },
 ];

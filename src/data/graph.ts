@@ -7,7 +7,7 @@ export interface Connection {
   line: string;
 }
 
-const JR_LINE_IDS = new Set(['yamanote', 'chuo', 'keihin_tohoku']);
+const JR_LINE_IDS = new Set(['yamanote', 'chuo']);
 
 // adjacency: stationId -> list of { to: stationId, line: lineId }
 const adjacency = new Map<string, Connection[]>();

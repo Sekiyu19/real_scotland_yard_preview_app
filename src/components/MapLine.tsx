@@ -7,7 +7,7 @@ interface MapLineProps {
   highlightPath?: string[] | null;
 }
 
-const JR_LINE_IDS = new Set(['yamanote', 'chuo', 'keihin_tohoku']);
+const JR_LINE_IDS = new Set(['yamanote', 'chuo']);
 
 const MapLine: React.FC<MapLineProps> = ({ line, highlightPath }) => {
   const validStations = line.stations.filter(s => stationMap.has(s));
@@ -95,7 +95,6 @@ function getLineOffset(lineId: string): number {
     asakusa_line: -2,
     yamanote: 5,
     chuo: -5,
-    keihin_tohoku: 8,
   };
   return offsets[lineId] ?? 0;
 }
