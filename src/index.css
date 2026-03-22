@@ -424,3 +424,349 @@ body {
   width: 12px;
   height: 12px;
 }
+
+/* ===== Mode Switch ===== */
+.header-center {
+  display: flex;
+  align-items: center;
+}
+.mode-switch {
+  display: flex;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+.mode-btn {
+  padding: 5px 16px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+.mode-btn.active {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+.mode-btn:hover:not(.active) {
+  color: rgba(255,255,255,0.7);
+}
+
+/* ===== Replay Panel ===== */
+.replay-panel {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.replay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.replay-header .panel-title {
+  margin: 0;
+}
+.replay-header-btns {
+  display: flex;
+  gap: 4px;
+}
+
+/* Player Setup */
+.player-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 6px;
+}
+.player-setup-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.player-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.player-color-dot-sm {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.player-name-input {
+  flex: 1;
+  padding: 3px 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  min-width: 0;
+}
+.player-role {
+  font-size: 10px;
+  color: #999;
+  white-space: nowrap;
+}
+.player-remove-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: #eee;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  transition: all 0.15s;
+}
+.player-remove-btn:hover {
+  background: #FDE;
+  color: #C62828;
+}
+
+/* Timeline */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: #f0f4ff;
+  border-radius: 6px;
+}
+.timeline-label {
+  font-size: 12px;
+  color: #555;
+  text-align: center;
+}
+.timeline-slider {
+  width: 100%;
+  cursor: pointer;
+  accent-color: #1976D2;
+}
+.timeline-btns {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Turn List */
+.turn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.turn-item {
+  padding: 6px 8px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 11px;
+}
+.turn-item:hover {
+  background: #f5f5f5;
+}
+.turn-item.active {
+  border-color: #1976D2;
+  background: #E3F2FD;
+}
+.turn-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+}
+.turn-number {
+  font-weight: 700;
+  color: #1976D2;
+  font-size: 12px;
+}
+.turn-item-actions {
+  display: flex;
+  gap: 3px;
+}
+.turn-edit-btn {
+  padding: 1px 6px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  background: #fff;
+  font-size: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  color: #888;
+}
+.turn-edit-btn:hover {
+  border-color: #999;
+  color: #555;
+}
+.turn-delete-btn:hover {
+  border-color: #E57373;
+  color: #C62828;
+  background: #FFF3F3;
+}
+.turn-moves {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.turn-move-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+}
+.turn-move-name {
+  font-weight: 500;
+  min-width: 32px;
+}
+.turn-move-arrow {
+  color: #ccc;
+}
+.turn-move-station {
+  flex: 1;
+}
+.turn-move-ticket {
+  font-weight: 600;
+  font-size: 9px;
+}
+
+/* Turn Form */
+.turn-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: #FFFDE7;
+  border-radius: 6px;
+  border: 1px solid #FFF9C4;
+}
+.turn-form-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #555;
+}
+.turn-form-player {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.turn-form-player-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.turn-form-player-name {
+  font-size: 12px;
+  font-weight: 600;
+}
+.turn-form-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-left: 16px;
+}
+.station-search-container {
+  position: relative;
+}
+.station-search-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+}
+.station-search-input:focus {
+  outline: none;
+  border-color: #1976D2;
+}
+.station-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  z-index: 100;
+  max-height: 150px;
+  overflow-y: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.station-dropdown-item {
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.station-dropdown-item:hover {
+  background: #E3F2FD;
+}
+.station-selected {
+  font-size: 11px;
+  font-weight: 600;
+  color: #1976D2;
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.ticket-mini-selector {
+  display: flex;
+  gap: 3px;
+}
+.ticket-mini-btn {
+  flex: 1;
+  padding: 3px 4px;
+  border: 1.5px solid var(--tc);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--tc);
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.1s;
+}
+.ticket-mini-btn.selected {
+  background: var(--tc);
+  color: #fff;
+}
+.turn-form-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* Shared button modifiers */
+.ctrl-btn-sm {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+.ctrl-btn-primary {
+  background: #1976D2;
+  color: #fff;
+  border-color: #1565C0;
+}
+.ctrl-btn-primary:hover:not(:disabled) {
+  background: #1565C0;
+}
+.add-turn-btn {
+  width: 100%;
+  margin-top: 4px;
+}

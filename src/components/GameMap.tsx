@@ -1,9 +1,12 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { stations } from '../data/stations';
 import { lines } from '../data/lines';
+import type { Player } from '../data/types';
 import MapLine from './MapLine';
 import MapStation from './MapStation';
+import PlayerMarker from './PlayerMarker';
 import type { ReachableInfo } from '../hooks/useGameState';
+import type { PlayerPosition } from '../hooks/useReplayState';
 
 interface GameMapProps {
   selectedStation: string | null;
@@ -12,6 +15,8 @@ interface GameMapProps {
   onSelectStation: (id: string) => void;
   onHoverStation: (id: string | null) => void;
   onHoverReachable: (info: ReachableInfo | null) => void;
+  playerPositions?: PlayerPosition[];
+  players?: Player[];
 }
 
 const MAP_WIDTH = 1200;
@@ -24,6 +29,8 @@ const GameMap: React.FC<GameMapProps> = ({
   hoveredReachable,
   onSelectStation,
   onHoverStation,
+  playerPositions = [],
+  players = [],
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -151,6 +158,32 @@ const GameMap: React.FC<GameMapProps> = ({
             onHover={onHoverStation}
           />
         ))}
+
+        {/* Player Markers */}
+        {playerPositions.length > 0 && (() => {
+          // Group by station for offset calculation
+          const stationGroups = new Map<string, PlayerPosition[]>();
+          for (const pos of playerPositions) {
+            const group = stationGroups.get(pos.stationId) || [];
+            group.push(pos);
+            stationGroups.set(pos.stationId, group);
+          }
+          return playerPositions.map(pos => {
+            const player = players.find(p => p.id === pos.playerId);
+            if (!player) return null;
+            const group = stationGroups.get(pos.stationId) || [];
+            const idx = group.indexOf(pos);
+            return (
+              <PlayerMarker
+                key={pos.playerId}
+                player={player}
+                stationId={pos.stationId}
+                offsetIndex={idx}
+                totalAtStation={group.length}
+              />
+            );
+          });
+        })()}
 
         {/* Title */}
         <text x={60} y={35} fontSize="18" fontWeight="bold" fill="#555" opacity={0.6}>
