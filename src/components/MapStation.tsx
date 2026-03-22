@@ -60,6 +60,13 @@ const MapStation: React.FC<MapStationProps> = ({
   }
 
   const fontSize = station.type === 'limited_express' ? 9.5 : 7.5;
+  const isLimitedExpress = station.type === 'limited_express';
+
+  // limited_express 用のラベル計測（ピンク囲みの幅を推定）
+  const labelY = station.y - r - 5;
+  const estimatedTextWidth = station.name.length * (isLimitedExpress ? 9.5 : 7.5);
+  const boxPadX = 4;
+  const boxPadY = 2.5;
 
   return (
     <g
@@ -85,6 +92,48 @@ const MapStation: React.FC<MapStationProps> = ({
           style={{ pointerEvents: 'none' }}
         />
       )}
+
+      {/* ピンク囲み: 特急(JR)駅の名前にピンク枠 + JRバッジ */}
+      {isLimitedExpress && !isSelected && !isReachable && (
+        <>
+          {/* ピンク囲み（駅名の背景ボックス） */}
+          <rect
+            x={station.x - estimatedTextWidth / 2 - boxPadX}
+            y={labelY - fontSize / 2 - boxPadY - 1}
+            width={estimatedTextWidth + boxPadX * 2}
+            height={fontSize + boxPadY * 2 + 2}
+            rx={3}
+            ry={3}
+            fill="#FFF0F3"
+            stroke="#E91E63"
+            strokeWidth={1.5}
+            style={{ pointerEvents: 'none' }}
+          />
+          {/* JRバッジ */}
+          <rect
+            x={station.x + estimatedTextWidth / 2 + boxPadX + 2}
+            y={labelY - fontSize / 2 - boxPadY}
+            width={16}
+            height={fontSize + boxPadY * 2}
+            rx={2}
+            ry={2}
+            fill="#FF8C00"
+            style={{ pointerEvents: 'none' }}
+          />
+          <text
+            x={station.x + estimatedTextWidth / 2 + boxPadX + 10}
+            y={labelY + 1}
+            textAnchor="middle"
+            fontSize={7}
+            fontWeight={800}
+            fill="#fff"
+            style={{ pointerEvents: 'none', userSelect: 'none' }}
+          >
+            JR
+          </text>
+        </>
+      )}
+
       {/* Station circle */}
       <circle
         cx={station.x}
@@ -94,28 +143,30 @@ const MapStation: React.FC<MapStationProps> = ({
         stroke={stroke}
         strokeWidth={strokeWidth}
       />
-      {/* Inner dot for express/limited_express */}
-      {!isSelected && !isReachable && station.type !== 'local' && (
+      {/* Inner dot for express */}
+      {!isSelected && !isReachable && station.type === 'express' && (
         <circle
           cx={station.x}
           cy={station.y}
           r={1.5}
-          fill={config.stroke}
+          fill="#fff"
           style={{ pointerEvents: 'none' }}
         />
       )}
       {/* Label */}
       <text
         x={station.x}
-        y={station.y - r - 3.5}
+        y={labelY + 1}
         textAnchor="middle"
         fontSize={fontSize}
         fontWeight={labelWeight}
-        fill={labelColor}
+        fill={isLimitedExpress && !isSelected && !isReachable ? '#C2185B' : labelColor}
         style={{ pointerEvents: 'none', userSelect: 'none' }}
-        stroke="#F8F6F0"
-        strokeWidth={2.5}
-        paintOrder="stroke"
+        {...(isLimitedExpress && !isSelected && !isReachable ? {} : {
+          stroke: '#F8F6F0',
+          strokeWidth: 2.5,
+          paintOrder: 'stroke' as const,
+        })}
       >
         {station.name}
       </text>
