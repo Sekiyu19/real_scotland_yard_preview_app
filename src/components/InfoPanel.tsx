@@ -1,7 +1,7 @@
 import React from 'react';
 import { stationMap } from '../data/stations';
 import { lines } from '../data/lines';
-import { TICKET_LABELS, TICKET_COLORS } from '../data/types';
+import { TICKET_LABELS, TICKET_COLORS, STATION_TYPE_LABELS, STATION_TYPE_COLORS } from '../data/types';
 import type { ReachableInfo } from '../hooks/useGameState';
 
 interface InfoPanelProps {
@@ -40,12 +40,12 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
             <span
               className="station-type-badge"
               style={{
-                background: TICKET_COLORS[station.type as keyof typeof TICKET_COLORS] + '20',
-                color: TICKET_COLORS[station.type as keyof typeof TICKET_COLORS],
-                border: `1px solid ${TICKET_COLORS[station.type as keyof typeof TICKET_COLORS]}40`,
+                background: STATION_TYPE_COLORS[station.type] + '20',
+                color: STATION_TYPE_COLORS[station.type],
+                border: `1px solid ${STATION_TYPE_COLORS[station.type]}40`,
               }}
             >
-              {TICKET_LABELS[station.type as keyof typeof TICKET_LABELS]}停車駅
+              {STATION_TYPE_LABELS[station.type]}停車駅
             </span>
           </div>
         ) : (

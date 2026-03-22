@@ -68,6 +68,8 @@ function App() {
             onHoverReachable={setHoveredReachable}
             playerPositions={mode === 'replay' ? replay.currentPositions : []}
             players={mode === 'replay' ? replay.players : []}
+            turns={mode === 'replay' ? replay.turns : []}
+            currentTurn={mode === 'replay' ? replay.currentTurn : 0}
           />
         </div>
 
@@ -112,10 +114,9 @@ function App() {
               <div className="rules-content">
                 <p>・表記駅全部 → <strong>各停</strong></p>
                 <p>・青丸駅 → <strong>快速</strong></p>
-                <p>・ピンク囲み駅 → <strong>特急(JR)</strong></p>
+                <p>・ピンク囲み駅 → <strong>JR</strong></p>
                 <p>・※一部抜いた駅があるので注意</p>
-                <p>・<strong>オレンジライン</strong>は4回まで特急扱いで利用可</p>
-                <p>・警察の移動チケット数は <strong>各停×10, 快速×8, 特急×4</strong></p>
+                <p>・警察の移動チケット数は <strong>各停×10, 快速×8, JR×4</strong></p>
                 <p>・つながっていない駅間は移動不可</p>
               </div>
             </details>

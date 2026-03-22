@@ -8,13 +8,12 @@ interface TicketPanelProps {
   onSelectTicket: (ticket: TicketType) => void;
 }
 
-const ticketTypes: TicketType[] = ['local', 'express', 'limited_express', 'orange_line'];
+const ticketTypes: TicketType[] = ['local', 'express', 'jr'];
 
 const TICKET_DESCRIPTIONS: Record<TicketType, string> = {
   local: '隣の駅へ1駅移動',
   express: '快速停車駅まで移動',
-  limited_express: '特急停車駅まで移動',
-  orange_line: '山手線で特急駅まで移動',
+  jr: 'JR停車駅まで移動',
 };
 
 const TicketPanel: React.FC<TicketPanelProps> = ({

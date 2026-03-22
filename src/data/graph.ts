@@ -1,4 +1,4 @@
-import { lines, ORANGE_LINE_ID } from './lines';
+import { lines } from './lines';
 import { stationMap } from './stations';
 import type { TicketType } from './types';
 
@@ -33,9 +33,7 @@ for (const line of lines) {
  *
  * - Local (各停): move 1 stop on any line to any adjacent station
  * - Express (快速): travel along a line, stop at next express/limited_express station
- * - Limited Express (特急): travel along a line, stop at next limited_express station
- * - Orange Line (オレンジ): travel on the 山手線 only, stop at next limited_express station
- *   (uses its own 4-use counter, not 特急 tickets)
+ * - JR: travel along any line, stop at next limited_express station
  */
 export function getReachableStations(
   fromId: string,
@@ -55,16 +53,13 @@ export function getReachableStations(
     return results;
   }
 
-  // For orange_line, only travel on the 山手線
-  const isOrangeLine = ticketType === 'orange_line';
-
   const canStop = (stationId: string): boolean => {
     const station = stationMap.get(stationId);
     if (!station) return false;
     if (ticketType === 'express') {
       return station.type === 'express' || station.type === 'limited_express';
     }
-    // limited_express and orange_line both stop at limited_express stations
+    // JR stops at limited_express stations only
     return station.type === 'limited_express';
   };
 
@@ -72,12 +67,7 @@ export function getReachableStations(
   const stationLines = new Set<string>();
   const connections = adjacency.get(fromId) || [];
   for (const conn of connections) {
-    if (isOrangeLine) {
-      // Only the orange line
-      if (conn.line === ORANGE_LINE_ID) stationLines.add(conn.line);
-    } else {
-      stationLines.add(conn.line);
-    }
+    stationLines.add(conn.line);
   }
 
   for (const lineId of stationLines) {

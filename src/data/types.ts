@@ -1,5 +1,5 @@
 export type StationType = 'local' | 'express' | 'limited_express';
-export type TicketType = 'local' | 'express' | 'limited_express' | 'orange_line';
+export type TicketType = 'local' | 'express' | 'jr';
 
 export interface Station {
   id: string;
@@ -20,30 +20,39 @@ export interface Line {
 export interface TicketState {
   local: number;
   express: number;
-  limited_express: number;
-  orange_line: number;
+  jr: number;
 }
 
-// 画像ルール: 警察の移動チケット数は 各停×10, 快速×8, 特急×4
+// 画像ルール: 警察の移動チケット数は 各停×10, 快速×8, JR×4
 export const INITIAL_TICKETS: TicketState = {
   local: 10,
   express: 8,
-  limited_express: 4,
-  orange_line: 4,
+  jr: 4,
 };
 
 export const TICKET_LABELS: Record<TicketType, string> = {
   local: '各停',
   express: '快速',
-  limited_express: '特急',
-  orange_line: 'オレンジ',
+  jr: 'JR',
 };
 
 export const TICKET_COLORS: Record<TicketType, string> = {
   local: '#666666',
   express: '#2196F3',
+  jr: '#E91E63',
+};
+
+// Station type display (separate from ticket labels since station types differ from ticket types)
+export const STATION_TYPE_LABELS: Record<StationType, string> = {
+  local: '各停',
+  express: '快速',
+  limited_express: 'JR',
+};
+
+export const STATION_TYPE_COLORS: Record<StationType, string> = {
+  local: '#666666',
+  express: '#2196F3',
   limited_express: '#E91E63',
-  orange_line: '#FF8C00',
 };
 
 // ===== Replay Types =====

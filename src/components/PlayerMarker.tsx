@@ -7,6 +7,8 @@ interface PlayerMarkerProps {
   stationId: string;
   offsetIndex: number; // For stacking multiple players at same station
   totalAtStation: number;
+  animatedX?: number;
+  animatedY?: number;
 }
 
 const PlayerMarker: React.FC<PlayerMarkerProps> = ({
@@ -14,18 +16,27 @@ const PlayerMarker: React.FC<PlayerMarkerProps> = ({
   stationId,
   offsetIndex,
   totalAtStation,
+  animatedX,
+  animatedY,
 }) => {
   const station = stationMap.get(stationId);
   if (!station) return null;
 
   const r = 10;
-  // Offset when multiple players on same station
-  const angle = totalAtStation === 1
-    ? 0
-    : (2 * Math.PI * offsetIndex) / totalAtStation - Math.PI / 2;
-  const offsetDist = totalAtStation === 1 ? 0 : 16;
-  const cx = station.x + Math.cos(angle) * offsetDist;
-  const cy = station.y + Math.sin(angle) * offsetDist;
+
+  // Use animated position if provided, otherwise use station position with offset
+  let cx: number, cy: number;
+  if (animatedX !== undefined && animatedY !== undefined) {
+    cx = animatedX;
+    cy = animatedY;
+  } else {
+    const angle = totalAtStation === 1
+      ? 0
+      : (2 * Math.PI * offsetIndex) / totalAtStation - Math.PI / 2;
+    const offsetDist = totalAtStation === 1 ? 0 : 16;
+    cx = station.x + Math.cos(angle) * offsetDist;
+    cy = station.y + Math.sin(angle) * offsetDist;
+  }
 
   return (
     <g style={{ pointerEvents: 'none' }}>

@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import type { Player, Turn, TurnMove, TicketType, ReplayData } from '../data/types';
+import type { Player, Turn, TurnMove } from '../data/types';
 import { DEFAULT_PLAYERS } from '../data/types';
 
 export interface PlayerPosition {
@@ -98,9 +98,9 @@ export function useReplayState() {
   const getPlayerTickets = useCallback(
     (playerId: string) => {
       const player = players.find(p => p.id === playerId);
-      if (!player) return { local: 0, express: 0, limited_express: 0, orange_line: 0 };
+      if (!player) return { local: 0, express: 0, jr: 0 };
 
-      const counts = { local: 11, express: 7, limited_express: 4, orange_line: 4 };
+      const counts = { local: 11, express: 7, jr: 4 };
       for (const turn of turns) {
         for (const move of turn.moves) {
           if (move.playerId === playerId && move.ticket in counts) {

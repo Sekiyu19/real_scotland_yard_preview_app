@@ -18,7 +18,7 @@ interface ReplayPanelProps {
   onSetPlayers: (players: Player[]) => void;
 }
 
-const ticketOptions: TicketType[] = ['local', 'express', 'limited_express', 'orange_line'];
+const ticketOptions: TicketType[] = ['local', 'express', 'jr'];
 
 const ReplayPanel: React.FC<ReplayPanelProps> = ({
   players,
@@ -115,8 +115,10 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
     const map: Record<string, TicketType> = {
       '各停': 'local', 'local': 'local',
       '快速': 'express', 'express': 'express',
-      '特急': 'limited_express', 'limited_express': 'limited_express',
-      'オレンジ': 'orange_line', 'orange_line': 'orange_line',
+      'JR': 'jr', 'jr': 'jr',
+      // Backwards compatibility
+      '特急': 'jr', 'limited_express': 'jr',
+      'オレンジ': 'jr', 'orange_line': 'jr',
     };
     return map[t] ?? null;
   };
@@ -255,7 +257,7 @@ const ReplayPanel: React.FC<ReplayPanelProps> = ({
       {/* Player Setup */}
       {showPlayerSetup && (
         <div className="player-setup">
-          {players.map((p, i) => (
+          {players.map((p) => (
             <div key={p.id} className="player-setup-row">
               <span
                 className="player-color-dot"

@@ -1,12 +1,13 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { stations } from '../data/stations';
+import { stations, stationMap } from '../data/stations';
 import { lines } from '../data/lines';
-import type { Player } from '../data/types';
+import type { Player, Turn } from '../data/types';
 import MapLine from './MapLine';
 import MapStation from './MapStation';
 import PlayerMarker from './PlayerMarker';
 import type { ReachableInfo } from '../hooks/useGameState';
 import type { PlayerPosition } from '../hooks/useReplayState';
+import { getReachableStations } from '../data/graph';
 
 interface GameMapProps {
   selectedStation: string | null;
@@ -17,11 +18,60 @@ interface GameMapProps {
   onHoverReachable: (info: ReachableInfo | null) => void;
   playerPositions?: PlayerPosition[];
   players?: Player[];
+  turns?: Turn[];
+  currentTurn?: number;
 }
 
 const MAP_WIDTH = 1200;
 const MAP_HEIGHT = 780;
 const PADDING = 40;
+const ANIMATION_DURATION = 600; // ms
+
+// Given a from station and to station with a ticket type, find the path of station coordinates
+function findMovePath(
+  fromStation: string,
+  toStation: string,
+  ticket: string
+): { x: number; y: number }[] {
+  // Try to find a matching path using getReachableStations
+  const ticketType = ticket as 'local' | 'express' | 'jr';
+  const reachable = getReachableStations(fromStation, ticketType);
+  const match = reachable.find(r => r.stationId === toStation);
+
+  if (match && match.path.length >= 2) {
+    return match.path
+      .map(sid => stationMap.get(sid))
+      .filter((s): s is NonNullable<typeof s> => s != null)
+      .map(s => ({ x: s.x, y: s.y }));
+  }
+
+  // Fallback: straight line
+  const from = stationMap.get(fromStation);
+  const to = stationMap.get(toStation);
+  if (from && to) {
+    return [{ x: from.x, y: from.y }, { x: to.x, y: to.y }];
+  }
+  return [];
+}
+
+// Compute positions at a given turn from turns data
+function getPositionsAtTurn(
+  turns: Turn[],
+  turnIdx: number
+): Map<string, string> {
+  const positions = new Map<string, string>();
+  for (let i = 0; i <= turnIdx && i < turns.length; i++) {
+    for (const move of turns[i].moves) {
+      positions.set(move.playerId, move.stationId);
+    }
+  }
+  return positions;
+}
+
+// Easing function for smooth animation
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
 
 const GameMap: React.FC<GameMapProps> = ({
   selectedStation,
@@ -31,6 +81,8 @@ const GameMap: React.FC<GameMapProps> = ({
   onHoverStation,
   playerPositions = [],
   players = [],
+  turns = [],
+  currentTurn = 0,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,6 +94,112 @@ const GameMap: React.FC<GameMapProps> = ({
   });
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+
+  // Animation state
+  const [animatedCoords, setAnimatedCoords] = useState<Map<string, { x: number; y: number }>>(new Map());
+  const prevTurnRef = useRef(currentTurn);
+  const animFrameRef = useRef<number>(0);
+
+  // Animate player movement along railway lines
+  useEffect(() => {
+    const prevTurn = prevTurnRef.current;
+    if (currentTurn === prevTurn) return;
+
+    const direction = currentTurn > prevTurn ? 1 : -1;
+    prevTurnRef.current = currentTurn;
+
+    // Determine which turn's moves to animate
+    // Going forward: animate the moves of the turn we're entering
+    // Going backward: reverse-animate the moves of the turn we're leaving
+    const turnIndex = direction > 0 ? currentTurn - 1 : prevTurn - 1;
+
+    if (turnIndex < 0 || turnIndex >= turns.length) return;
+
+    const turn = turns[turnIndex];
+    if (!turn || turn.moves.length === 0) return;
+
+    // Get positions before this turn's moves (to know where players started)
+    const prevPositions = getPositionsAtTurn(turns, turnIndex - 1);
+
+    // Compute waypoints for each player in this turn
+    const playerWaypoints = new Map<string, { x: number; y: number }[]>();
+
+    for (const move of turn.moves) {
+      const fromStation = prevPositions.get(move.playerId);
+      if (!fromStation) continue;
+
+      let waypoints = findMovePath(fromStation, move.stationId, move.ticket);
+      if (waypoints.length < 2) continue;
+
+      // If going backward, reverse the path
+      if (direction < 0) {
+        waypoints = [...waypoints].reverse();
+      }
+
+      playerWaypoints.set(move.playerId, waypoints);
+    }
+
+    if (playerWaypoints.size === 0) return;
+
+    // Start animation
+    cancelAnimationFrame(animFrameRef.current);
+    const startTime = performance.now();
+
+    const animate = (now: number) => {
+      const elapsed = now - startTime;
+      const rawProgress = Math.min(elapsed / ANIMATION_DURATION, 1);
+      const progress = easeInOutCubic(rawProgress);
+
+      const coords = new Map<string, { x: number; y: number }>();
+
+      for (const [playerId, waypoints] of playerWaypoints) {
+        if (waypoints.length < 2) continue;
+
+        // Calculate total path length for uniform speed
+        let totalLength = 0;
+        const segmentLengths: number[] = [];
+        for (let i = 0; i < waypoints.length - 1; i++) {
+          const dx = waypoints[i + 1].x - waypoints[i].x;
+          const dy = waypoints[i + 1].y - waypoints[i].y;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          segmentLengths.push(len);
+          totalLength += len;
+        }
+
+        // Find position along the path at current progress
+        const targetDist = progress * totalLength;
+        let accumulated = 0;
+
+        for (let i = 0; i < segmentLengths.length; i++) {
+          if (accumulated + segmentLengths[i] >= targetDist || i === segmentLengths.length - 1) {
+            const segProgress = segmentLengths[i] > 0
+              ? (targetDist - accumulated) / segmentLengths[i]
+              : 0;
+            const clampedProgress = Math.min(Math.max(segProgress, 0), 1);
+            coords.set(playerId, {
+              x: waypoints[i].x + (waypoints[i + 1].x - waypoints[i].x) * clampedProgress,
+              y: waypoints[i].y + (waypoints[i + 1].y - waypoints[i].y) * clampedProgress,
+            });
+            break;
+          }
+          accumulated += segmentLengths[i];
+        }
+      }
+
+      setAnimatedCoords(coords);
+
+      if (rawProgress < 1) {
+        animFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        // Animation complete - clear animated coords
+        setAnimatedCoords(new Map());
+      }
+    };
+
+    animFrameRef.current = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animFrameRef.current);
+  }, [currentTurn, turns]);
 
   const reachableSet = new Set(reachable.map(r => r.stationId));
 
@@ -173,6 +331,7 @@ const GameMap: React.FC<GameMapProps> = ({
             if (!player) return null;
             const group = stationGroups.get(pos.stationId) || [];
             const idx = group.indexOf(pos);
+            const animated = animatedCoords.get(pos.playerId);
             return (
               <PlayerMarker
                 key={pos.playerId}
@@ -180,6 +339,8 @@ const GameMap: React.FC<GameMapProps> = ({
                 stationId={pos.stationId}
                 offsetIndex={idx}
                 totalAtStation={group.length}
+                animatedX={animated?.x}
+                animatedY={animated?.y}
               />
             );
           });
@@ -249,7 +410,7 @@ const GameMap: React.FC<GameMapProps> = ({
           </div>
           <div className="legend-station-item">
             <span className="legend-dot legend-dot-limited" />
-            <span>特急 <span className="legend-jr-badge">JR</span> のみ</span>
+            <span>JR</span>
           </div>
         </div>
       </div>
