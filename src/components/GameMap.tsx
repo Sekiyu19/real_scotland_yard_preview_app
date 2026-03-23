@@ -326,24 +326,74 @@ const GameMap: React.FC<GameMapProps> = ({
             group.push(pos);
             stationGroups.set(pos.stationId, group);
           }
-          return playerPositions.map(pos => {
-            const player = players.find(p => p.id === pos.playerId);
-            if (!player) return null;
-            const group = stationGroups.get(pos.stationId) || [];
-            const idx = group.indexOf(pos);
-            const animated = animatedCoords.get(pos.playerId);
-            return (
-              <PlayerMarker
-                key={pos.playerId}
-                player={player}
-                stationId={pos.stationId}
-                offsetIndex={idx}
-                totalAtStation={group.length}
-                animatedX={animated?.x}
-                animatedY={animated?.y}
-              />
-            );
-          });
+          return (
+            <>
+              {playerPositions.map(pos => {
+                const player = players.find(p => p.id === pos.playerId);
+                if (!player) return null;
+                const group = stationGroups.get(pos.stationId) || [];
+                const idx = group.indexOf(pos);
+                const animated = animatedCoords.get(pos.playerId);
+                return (
+                  <PlayerMarker
+                    key={pos.playerId}
+                    player={player}
+                    stationId={pos.stationId}
+                    offsetIndex={idx}
+                    totalAtStation={group.length}
+                    animatedX={animated?.x}
+                    animatedY={animated?.y}
+                  />
+                );
+              })}
+              {/* Cheers animation for stations with 2+ players */}
+              {animatedCoords.size === 0 && Array.from(stationGroups.entries())
+                .filter(([, group]) => group.length >= 2)
+                .map(([stationId]) => {
+                  const s = stationMap.get(stationId);
+                  if (!s) return null;
+                  const lx = s.x - 10;
+                  const rx = s.x + 10;
+                  const ty = s.y - 25;
+                  return (
+                    <g key={`cheers-${stationId}`} style={{ pointerEvents: 'none' }}>
+                      {/* Beer left - tilts right */}
+                      <text x={lx} y={ty} fontSize={16} textAnchor="middle">
+                        <animateTransform
+                          attributeName="transform"
+                          type="rotate"
+                          values={`0 ${lx} ${ty};20 ${lx} ${ty};0 ${lx} ${ty};0 ${lx} ${ty}`}
+                          dur="1.5s"
+                          repeatCount="indefinite"
+                        />
+                        🍺
+                      </text>
+                      {/* Beer right - tilts left */}
+                      <text x={rx} y={ty} fontSize={16} textAnchor="middle">
+                        <animateTransform
+                          attributeName="transform"
+                          type="rotate"
+                          values={`0 ${rx} ${ty};-20 ${rx} ${ty};0 ${rx} ${ty};0 ${rx} ${ty}`}
+                          dur="1.5s"
+                          repeatCount="indefinite"
+                        />
+                        🍺
+                      </text>
+                      {/* Sparkle effect */}
+                      <text x={s.x} y={ty - 8} fontSize={10} textAnchor="middle">
+                        <animate
+                          attributeName="opacity"
+                          values="0;1;0"
+                          dur="1.5s"
+                          repeatCount="indefinite"
+                        />
+                        ✨
+                      </text>
+                    </g>
+                  );
+                })}
+            </>
+          );
         })()}
 
         {/* Title */}
